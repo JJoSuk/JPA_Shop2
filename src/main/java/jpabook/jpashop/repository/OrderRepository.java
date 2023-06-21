@@ -13,10 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
 public class OrderRepository {
 
     private final EntityManager em;
+
+    public OrderRepository(EntityManager em) {
+        this.em = em;
+    }
 
     public void save(Order order) {
         em.persist(order);
@@ -40,6 +43,17 @@ public class OrderRepository {
                 jpql += " and";
             }
             jpql += " o.status = :status";
+        }
+
+        //회원 이름 검색
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            if (isFirstCondition) {
+                jpql += " where";
+                isFirstCondition = false;
+            } else {
+                jpql += " and";
+            }
+            jpql += " m.name like :name";
         }
 
         TypedQuery<Order> query = em.createQuery(jpql, Order.class)
